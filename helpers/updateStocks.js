@@ -18,14 +18,18 @@ export const stockUpdater = async (stocks) => {
 	  const indicators = await agent.get(`https://rahavard365.com/asset/${stock.assetId}/indicator`)
 	  const html = indicators.text
 	  const mainVariable = findMainVariable(html, 'layoutModel')
+	  const category = mainVariable.asset.category.parent.short_name
+
 	  if (!mainVariable) throw new Error('layout model did not found')
 	  const {pivot, r1, r2, r3, s1, s2, s3} = getResAndSups(mainVariable, 'PivotPointFibonacci(30)')
-	  if (!r1 || !s1) throw new Error('resistance did not found')
+	  // if (!r1 || !s1) throw new Error('resistance did not found')
 	  const [buyIndicators, neutralIndicators, sellIndicators] = mainVariable.technical_sum_List
-	  if (!buyIndicators || !sellIndicators) throw new Error('indicators did not found')
+	  if (buyIndicators  === undefined || sellIndicators === undefined) throw new Error('indicators did not found')
 	  const {close_price: closedPrice, close_price_change_percent: changedPercent} = mainVariable.trade
 	  const today = new Date().toISOString().slice(0, 10)
 	  const signalType = getSignalType({buyIndicators, neutralIndicators, sellIndicators})
+	  const companyBuyAmount = parseInt(companyBuyVolume) * parseInt(closedPrice)
+	  const companySellAmount = parseInt(companySellVolume) * parseInt(closedPrice)
 	  const data = {
 		name: stock.name,
 		assetId: stock.assetId,
@@ -34,6 +38,8 @@ export const stockUpdater = async (stocks) => {
 		sellIndicators,
 		closedPrice,
 		changedPercent,
+		companyBuyAmount,
+		companySellAmount,
 		pivot,
 		r1:r1 || '0',
 		r2:r2 || '0',
@@ -45,12 +51,12 @@ export const stockUpdater = async (stocks) => {
 		companySellVolume,
 		companyBuyerCount,
 		companyBuyVolume,
-		signalType
+		signalType,
+		category
 	  }
 	  await Stocks.findByIdAndUpdate(stock._id, {
 		...data,
 		lastUpdate: today,
-		active: true
 	  }, {new: true})
 	  await StocksLogs.updateOne({date: today, assetId: stock.assetId}, {
 		...data, date: today

@@ -13,31 +13,36 @@ export const getCompanyBuyStats = (values) => {
   return {companySellerCount, companySellVolume, companyBuyVolume, companyBuyerCount}
 }
 export const getResAndSups = (layoutModel, method) => {
-  const values = _.find(layoutModel.pivot_indicators, (val) => {
-	return val.short_name_en === method
-  })?.values
-  const pivot = _.find(values, val => {
-	return val.name === 'pivot'
-  }).value
-  const r1 = _.find(values, val => {
-	return val.name === 'r1'
-  }).value
-  const s1 = _.find(values, val => {
-	return val.name === 's1'
-  }).value
-  const r2 = _.find(values, val => {
-	return val.name === 'r2'
-  }).value
-  const s2 = _.find(values, val => {
-	return val.name === 's2'
-  }).value
-  const r3 = _.find(values, val => {
-	return val.name === 'r3'
-  }).value
-  const s3 = _.find(values, val => {
-	return val.name === 's3'
-  }).value
+  try {
+	const values = _.find(layoutModel.pivot_indicators, (val) => {
+	  return val.short_name_en === method
+	})?.values
+	const pivot = _.find(values, val => {
+	  return val.name === 'pivot'
+	}).value
+	const r1 = _.find(values, val => {
+	  return val.name === 'r1'
+	}).value
+	const s1 = _.find(values, val => {
+	  return val.name === 's1'
+	}).value
+	const r2 = _.find(values, val => {
+	  return val.name === 'r2'
+	}).value
+	const s2 = _.find(values, val => {
+	  return val.name === 's2'
+	}).value
+	const r3 = _.find(values, val => {
+	  return val.name === 'r3'
+	}).value
+	const s3 = _.find(values, val => {
+	  return val.name === 's3'
+	}).value
   return {pivot, r1, r2, r3, s1, s2, s3}
+  } catch (e) {
+	console.log(`ERROR IN GETTING RESANDSUPS`)
+	return {pivot:0, r1:0, r2:0, r3:0, s1:0, s2:0, s3:0}
+  }
 }
 export const findMainVariable = (html, variable) => {
   const $ = cheerio.load(html)
